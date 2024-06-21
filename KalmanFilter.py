@@ -7,7 +7,6 @@
 '''
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 class KalmanFilter(object):
     def __init__(self, dt, u_x,u_y, std_acc, x_std_meas, y_std_meas):

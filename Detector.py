@@ -11,40 +11,28 @@ import numpy as np
 import cv2
 
 
-def detect(frame,debugMode):
-    # Convert frame from BGR to GRAY
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+def detect(frame,fgbg,kernel,debugMode,minArea = 100):
+    x, y, w, h = -1, -1, -1, -1
+    fgmask = fgbg.apply(frame)
+    fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
 
     if (debugMode):
-        cv2.imshow('gray', gray)
+        cv2.imshow('mask', fgmask)
 
-    # Edge detection using Canny function
-    img_edges = cv2.Canny(gray,  50, 190, 3)
-    if (debugMode):
-        cv2.imshow('img_edges', img_edges)
 
-    # Convert to black and white image
-    ret, img_thresh = cv2.threshold(img_edges, 254, 255,cv2.THRESH_BINARY)
-    if (debugMode):
-        cv2.imshow('img_thresh', img_thresh)
+    img_thresh_gaussian = cv2.adaptiveThreshold(fgmask,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+    cv2.THRESH_BINARY_INV,13,4)
+    img_thresh_mean = cv2.adaptiveThreshold(fgmask,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
+    cv2.THRESH_BINARY_INV,13,13)
+    _,img_thresh_otsu = cv2.threshold(fgmask,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
     # Find contours
-    contours, _ = cv2.findContours(img_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(img_thresh_gaussian, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if(len(contours) >=1):
+        contour = max(contours, key=cv2.contourArea)
+        if (cv2.contourArea(contour) > minArea):
+            x, y, w, h = cv2.boundingRect(contour)
+    return (img_thresh_gaussian,img_thresh_mean,img_thresh_otsu),np.array([[x],[y],[w],[h]])
 
-    # Set the accepted minimum & maximum radius of a detected object
-    min_radius_thresh=5
-    max_radius_thresh=50
-
-    centers=[]
-    for c in contours:
-        # ref: https://docs.opencv.org/trunk/dd/d49/tutorial_py_contour_features.html
-        (x, y), radius = cv2.minEnclosingCircle(c)
-        radius = int(radius)
-
-        #Take only the valid circle(s)
-        if (radius > min_radius_thresh) and (radius < max_radius_thresh):
-            centers.append(np.array([[x], [y]]))
-    cv2.imshow('contours', img_thresh)
-    return centers
 
 
