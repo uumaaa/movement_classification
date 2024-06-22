@@ -15,24 +15,19 @@ def detect(frame,fgbg,kernel,debugMode,minArea = 100):
     x, y, w, h = -1, -1, -1, -1
     fgmask = fgbg.apply(frame)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
-
     if (debugMode):
         cv2.imshow('mask', fgmask)
 
 
     img_thresh_gaussian = cv2.adaptiveThreshold(fgmask,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
     cv2.THRESH_BINARY_INV,13,4)
-    img_thresh_mean = cv2.adaptiveThreshold(fgmask,255,cv2.ADAPTIVE_THRESH_MEAN_C,\
-    cv2.THRESH_BINARY_INV,13,13)
-    _,img_thresh_otsu = cv2.threshold(fgmask,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-
-    # Find contours
     contours, _ = cv2.findContours(img_thresh_gaussian, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
     if(len(contours) >=1):
         contour = max(contours, key=cv2.contourArea)
         if (cv2.contourArea(contour) > minArea):
             x, y, w, h = cv2.boundingRect(contour)
-    return (img_thresh_gaussian,img_thresh_mean,img_thresh_otsu),np.array([[x],[y],[w],[h]])
+    return img_thresh_gaussian,np.array([[x],[y],[w],[h]])
 
 
 
