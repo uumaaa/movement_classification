@@ -11,7 +11,7 @@ import numpy as np
 import cv2
 
 
-def detect(frame,fgbg,kernel,debugMode,minArea = 100):
+def detect(frame,fgbg,kernel,debugMode=0,minArea = 100):
     x, y, w, h = -1, -1, -1, -1
     fgmask = fgbg.apply(frame)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
