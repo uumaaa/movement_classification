@@ -5,7 +5,8 @@ import os
 from KalmanFilter import KalmanFilter
 from Detector import detect
 
-classes = ['GolfSwing/','Archery/','HandstandPushups/','HandstandWalking/','Drumming/','WritingOnBoard/','Pullups/','JumpingJack/','PlayingGuitar']
+#classes = ['GolfSwing/','Archery/','HandstandPushups/','HandstandWalking/','Drumming/','WritingOnBoard/','Pullups/','JumpingJack/','PlayingGuitar']
+classes = ['PlayingGuitar/']
 output_base_path = 'cleaned_dataset/'
 
 for class_name in classes:
@@ -74,9 +75,10 @@ for class_name in classes:
                 x1_start = max(0, x1 - mid_width)
                 x1_end = min(frame_width, x1 + mid_width)
                 movement_frame = frame[y1_start:y1_end, x1_start:x1_end]
-            
-            movement_frame = cv2.resize(movement_frame, (224, 224))
-            out.write(movement_frame)
+            if(movement_frame.shape[0] != 0 and movement_frame.shape[1] != 0):
+                movement_frame = cv2.resize(movement_frame, (224, 224))
+                cv2.imshow('result',movement_frame)
+                out.write(movement_frame)
 
             k = cv2.waitKey(1)
             if k == 27:
