@@ -1,2 +1,4 @@
 dataset/
-cleaned_dataset/
+working_dataset/
+working_dataset_rgb/
+dataset.zip
